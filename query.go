@@ -1,85 +1,47 @@
 package mongo
 
 import (
+	"sync"
+
 	"github.com/elos/data"
 	"gopkg.in/mgo.v2"
 )
 
+func (db *MongoDB) NewQuery(k data.Kind) data.Query {
+	return &MongoQuery{
+		db:    db,
+		kind:  k,
+		match: data.AttrMap{},
+		Mutex: new(sync.Mutex),
+	}
+}
+
 type MongoQuery struct {
 	db    *MongoDB
 	kind  data.Kind
-	am    data.AttrMap
+	match data.AttrMap
 	limit int
 	skip  int
 	batch int
-}
-
-func (db *MongoDB) NewQuery(k data.Kind) data.Query {
-	return &MongoQuery{
-		db:   db,
-		kind: k,
-		am:   data.AttrMap{},
-	}
+	*sync.Mutex
 }
 
 func (q *MongoQuery) Execute() (data.RecordIterator, error) {
-	s, err := newSession(q.db)
+	q.Lock()
+	defer q.Unlock()
+
+	s, err := q.db.forkSession()
 	if err != nil {
-		log(err)
 		return nil, err
 	}
 	defer s.Close()
-	// fixme: ugly type assertion
-	return query(s, q)
-}
 
-func (q *MongoQuery) Select(am data.AttrMap) data.Query {
-	q.am = am
-	return q
-}
-
-func (q *MongoQuery) Limit(i int) data.Query {
-	q.limit = i
-	return q
-}
-
-func (q *MongoQuery) Skip(i int) data.Query {
-	q.skip = i
-	return q
-}
-
-func (q *MongoQuery) Batch(i int) data.Query {
-	q.batch = i
-	return q
-}
-
-type Iterator struct {
-	iter *mgo.Iter
-}
-
-func (i *Iterator) Next(m data.Record) bool {
-	return false
-}
-
-type MongoModelIterator struct {
-	iter *mgo.Iter
-}
-
-func (i *MongoModelIterator) Next(m data.Record) bool {
-	return i.iter.Next(m)
-}
-
-func (i *MongoModelIterator) Close() error {
-	return i.iter.Close()
-}
-
-func query(s *mgo.Session, q *MongoQuery) (data.RecordIterator, error) {
-	c, err := collectionForKind(s, q.kind)
+	c, err := q.db.collectionForKind(s, q.kind)
 	if err != nil {
 		return nil, err
 	}
 
-	mgoQuery := c.Find(q.am)
+	mgoQuery := c.Find(q.match)
 
 	if q.limit != 0 {
 		mgoQuery.Limit(q.limit)
@@ -93,5 +55,56 @@ func query(s *mgo.Session, q *MongoQuery) (data.RecordIterator, error) {
 		mgoQuery.Batch(q.batch)
 	}
 
-	return &MongoModelIterator{iter: mgoQuery.Iter()}, nil
+	return newRecordIter(mgoQuery.Iter()), nil
+}
+
+func (q *MongoQuery) Select(am data.AttrMap) data.Query {
+	q.Lock()
+	defer q.Unlock()
+	q.match = am
+	return q
+}
+
+func (q *MongoQuery) Limit(i int) data.Query {
+	q.Lock()
+	defer q.Unlock()
+
+	q.limit = i
+	return q
+}
+
+func (q *MongoQuery) Skip(i int) data.Query {
+	q.Lock()
+	defer q.Unlock()
+
+	q.skip = i
+	return q
+}
+
+func (q *MongoQuery) Batch(i int) data.Query {
+	q.Lock()
+	defer q.Unlock()
+
+	q.batch = i
+	return q
+}
+
+type recordIter struct {
+	iter *mgo.Iter
+	*sync.Mutex
+}
+
+func newRecordIter(i *mgo.Iter) data.RecordIterator {
+	return &recordIter{
+		iter:  i,
+		Mutex: new(sync.Mutex),
+	}
+}
+
+func (i *recordIter) Next(r data.Record) bool {
+	return i.iter.Next(r)
+}
+
+func (i *recordIter) Close() error {
+	return i.iter.Close()
 }

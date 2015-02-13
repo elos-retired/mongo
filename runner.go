@@ -1,32 +1,54 @@
 package mongo
 
 import (
-	// "github.com/elos/server/util"
+	"log"
 	"os"
 	"os/exec"
+
+	"github.com/elos/autonomous"
 )
 
 var (
 	mongod exec.Cmd
 )
 
-func StartDatabaseServer() error {
-	mongod := exec.Command("mongod", "--config", "./mongo.conf")
-	mongod.Stdout = os.Stdout
-	mongod.Stderr = os.Stderr
+type runner struct {
+	autonomous.Life
+	autonomous.Stopper
+	autonomous.Managed
 
-	if err := mongod.Start(); err != nil {
-		return err
-	}
-	// Log("Mongo succesfully started") causes runtime panic?
-	return nil
+	mongod     *exec.Cmd
+	ConfigFile string
 }
 
-func StopDatabaseServer(sig os.Signal) error {
-	if err := mongod.Process.Signal(sig); err != nil {
-		return err
+var Runner = &runner{
+	Life:    autonomous.NewLife(),
+	Stopper: make(autonomous.Stopper),
+	Managed: *new(autonomous.Managed),
+}
+
+func (r *runner) Start() {
+	if r.ConfigFile != "" {
+		r.mongod = exec.Command("mongod", "--config", r.ConfigFile)
+	} else {
+		r.mongod = exec.Command("mongod")
 	}
 
-	// Log("Mongo succesfully stopped") causes runtime panic?
-	return nil
+	r.mongod.Stdout = os.Stdout
+	r.mongod.Stderr = os.Stderr
+
+	if err := r.mongod.Start(); err != nil {
+		log.Print(err)
+	} else {
+		log.Print("Mongo successfully started")
+	}
+
+	r.Life.Begin()
+	<-r.Stopper
+	if err := r.mongod.Process.Signal(os.Interrupt); err != nil {
+		log.Print(err)
+	} else {
+		log.Print("Mongo succesfully stopped")
+	}
+	r.Life.End()
 }

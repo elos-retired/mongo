@@ -26,3 +26,9 @@ func Connect(addr string) (*MongoConnection, error) {
 
 	return connection, nil
 }
+
+func (db *MongoDB) Connect(addr string) error {
+	var err error
+	db.connection, err = Connect(addr)
+	return err
+}

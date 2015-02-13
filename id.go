@@ -1,9 +1,36 @@
 package mongo
 
 import (
+	"sync"
+
 	"github.com/elos/data"
 	"gopkg.in/mgo.v2/bson"
 )
+
+func (db *MongoDB) NewID() data.ID {
+	return NewObjectID()
+}
+
+func (db *MongoDB) CheckID(id data.ID) error {
+	id, ok := id.(bson.ObjectId)
+	if !ok || !id.Valid() {
+		return data.ErrInvalidID
+	} else {
+		return nil
+	}
+}
+
+func NewObjectID() data.ID {
+	return bson.NewObjectId()
+}
+
+func NewObjectIDFromHex(hex string) data.ID {
+	return bson.ObjectIdHex(hex)
+}
+
+func IsObjectIDHex(hex string) bool {
+	return bson.IsObjectIdHex(hex)
+}
 
 type IDSet []bson.ObjectId
 
@@ -42,32 +69,36 @@ func (s IDSet) IndexID(id bson.ObjectId) (int, bool) {
 
 type IDIter struct {
 	data.Store
-	ids IDSet
-	p   int
-	err error
+	ids   IDSet
+	place int
+	err   error
+
+	*sync.Mutex
 }
 
 func NewIDIter(set IDSet, s data.Store) *IDIter {
 	return &IDIter{
+		place: 0,
 		Store: s,
 		ids:   set,
+		Mutex: new(sync.Mutex),
 	}
 }
 
 func (i *IDIter) Next(r data.Record) bool {
-	if i.p >= len(i.ids) {
+	if i.place >= len(i.ids) {
 		return false
 	}
 
-	r.SetID(i.ids[i.p])
-	err := i.Store.PopulateByID(r)
+	r.SetID(i.ids[i.place])
 
-	if err != nil {
+	if err := i.Store.PopulateByID(r); err != nil {
 		i.err = err
 		return false
+	} else {
+		i.place += 1
+		return true
 	}
-
-	return true
 }
 
 func (i *IDIter) Close() error {
