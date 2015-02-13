@@ -19,12 +19,14 @@ type runner struct {
 
 	mongod     *exec.Cmd
 	ConfigFile string
+	*log.Logger
 }
 
 var Runner = &runner{
 	Life:    autonomous.NewLife(),
 	Stopper: make(autonomous.Stopper),
 	Managed: *new(autonomous.Managed),
+	Logger:  DefaultLogger,
 }
 
 func (r *runner) Start() {
@@ -38,17 +40,17 @@ func (r *runner) Start() {
 	r.mongod.Stderr = os.Stderr
 
 	if err := r.mongod.Start(); err != nil {
-		log.Print(err)
+		r.Print(err)
 	} else {
-		log.Print("Mongo successfully started")
+		r.Print("Mongo successfully started")
 	}
 
 	r.Life.Begin()
 	<-r.Stopper
 	if err := r.mongod.Process.Signal(os.Interrupt); err != nil {
-		log.Print(err)
+		r.Print(err)
 	} else {
-		log.Print("Mongo succesfully stopped")
+		r.Print("Mongo succesfully stopped")
 	}
 	r.Life.End()
 }

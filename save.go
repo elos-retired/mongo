@@ -7,6 +7,10 @@ import (
 )
 
 func (db *MongoDB) Save(m data.Record) error {
+	if m.DBType() != db.Type() {
+		return data.ErrInvalidDBType
+	}
+
 	s, err := db.forkSession()
 	if err != nil {
 		return db.err(err)
@@ -14,7 +18,7 @@ func (db *MongoDB) Save(m data.Record) error {
 	defer s.Close()
 
 	if err = db.save(s, m); err != nil {
-		db.log.Printf("Error saving record of kind %s, err: %s", m.Kind(), err.Error())
+		db.Printf("Error saving record of kind %s, err: %s", m.Kind(), err.Error())
 		return err
 	} else {
 		db.notify(data.NewChange(data.Update, m))

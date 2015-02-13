@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"sync"
@@ -19,12 +20,15 @@ const (
 	DefaultName DBName      = "test"
 )
 
+var DefaultLogger = log.New(os.Stdout, "[MONGO]", log.Lshortfile)
+var NullLogger = log.New(ioutil.Discard, "", log.Lshortfile)
+
 type MongoDB struct {
 	collections CollectionMap
 	subscribers map[data.ID][]*chan *data.Change
-	log         *log.Logger
-	connection  *MongoConnection
-	Name        DBName
+	*log.Logger
+	connection *MongoConnection
+	Name       DBName
 	*sync.Mutex
 }
 
@@ -32,7 +36,7 @@ func NewDB() (db *MongoDB) {
 	db = &MongoDB{}
 	db.collections = make(CollectionMap)
 	db.subscribers = make(map[data.ID][]*chan *data.Change)
-	db.log = log.New(os.Stdout, "[MONGO]", log.Lshortfile)
+	db.Logger = DefaultLogger
 	db.Name = DefaultName
 	db.Mutex = new(sync.Mutex)
 	return
@@ -79,6 +83,6 @@ func (db *MongoDB) forkSession() (*mgo.Session, error) {
 }
 
 func (db *MongoDB) err(err error) error {
-	db.log.Print("error: ", err.Error())
+	db.Print("error: ", err.Error())
 	return err
 }

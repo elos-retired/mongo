@@ -14,7 +14,7 @@ func (db *MongoDB) PopulateByID(m data.Record) error {
 	defer s.Close()
 
 	if err = db.populateById(s, m); err != nil {
-		db.log.Printf("There was an error populating the %s model, error: %v", m.Kind(), err)
+		db.Printf("There was an error populating the %s model, error: %v", m.Kind(), err)
 		if err == mgo.ErrNotFound {
 			return data.ErrNotFound
 		} else {
@@ -48,7 +48,7 @@ func (db *MongoDB) PopulateByField(field string, value interface{}, m data.Recor
 	defer s.Close()
 
 	if err = db.populateByField(s, m, field, value); err != nil {
-		db.log.Printf("There was an error populating the %s model, error: %v", m.Kind(), err)
+		db.Printf("There was an error populating the %s model, error: %v", m.Kind(), err)
 		return err
 	} else {
 		return nil

@@ -20,7 +20,7 @@ func (db *MongoDB) CheckID(id data.ID) error {
 	}
 }
 
-func NewObjectID() data.ID {
+func NewObjectID() bson.ObjectId {
 	return bson.NewObjectId()
 }
 
