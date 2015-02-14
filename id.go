@@ -67,6 +67,25 @@ func (s IDSet) IndexID(id bson.ObjectId) (int, bool) {
 	return -1, false
 }
 
+func (s IDSet) NotIn(i IDSet) IDSet {
+	ids := make(IDSet, 0)
+	for _, id := range s {
+		_, in := i.IndexID(id)
+		if !in {
+			ids = append(ids, id)
+		}
+	}
+	return ids
+}
+
+func (s IDSet) IDs() []data.ID {
+	ids := make([]data.ID, len(s))
+	for i, id := range s {
+		ids[i] = id
+	}
+	return ids
+}
+
 type IDIter struct {
 	data.Store
 	ids   IDSet
