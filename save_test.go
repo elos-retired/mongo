@@ -6,7 +6,7 @@ import (
 	"github.com/elos/data"
 )
 
-func TestSaveRetrieve(t *testing.T) {
+func TestSave(t *testing.T) {
 	Runner.ConfigFile = "./test.conf"
 	Runner.Logger = NullLogger
 	go Runner.Start()
@@ -75,18 +75,4 @@ func TestSaveRetrieve(t *testing.T) {
 	if retrievedModel.Int != testInt {
 		t.Errorf("Error with data, wanted %d, got %d", testInt, retrievedModel)
 	}
-
-	// remove it
-	/*
-		if err := db.Delete(retrievedModel); err != nil {
-			t.Errorf("Error with delete, error: %s", err.Error())
-		}
-
-		deletedModel := data.NewNullModel()
-		deletedModel.SetDBType(DBType)
-		deletedModel.SetID(model.ID())
-
-		err := db.PopulateByID(deletedModel)
-		log.Print(err)
-	*/
 }

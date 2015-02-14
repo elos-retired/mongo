@@ -7,6 +7,10 @@ import (
 )
 
 func (db *MongoDB) Delete(m data.Record) error {
+	if m.DBType() != db.Type() {
+		return data.ErrInvalidDBType
+	}
+
 	s, err := db.forkSession()
 	if err != nil {
 		return db.err(err)
