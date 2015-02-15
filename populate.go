@@ -7,6 +7,10 @@ import (
 )
 
 func (db *MongoDB) PopulateByID(m data.Record) error {
+	if m.DBType() != db.Type() {
+		return data.ErrInvalidDBType
+	}
+
 	s, err := db.forkSession()
 	if err != nil {
 		return db.err(err)
@@ -41,6 +45,10 @@ func (db *MongoDB) populateById(s *mgo.Session, m data.Record) error {
 }
 
 func (db *MongoDB) PopulateByField(field string, value interface{}, m data.Record) error {
+	if m.DBType() != db.Type() {
+		return data.ErrInvalidDBType
+	}
+
 	s, err := db.forkSession()
 	if err != nil {
 		return db.err(err)

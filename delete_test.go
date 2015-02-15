@@ -54,6 +54,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	r := data.NewNullModel()
+	r.SetDBType(DBType)
 	r.SetID(model.ID())
 
 	if err := db.PopulateByID(r); err != data.ErrNotFound {
