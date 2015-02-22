@@ -87,7 +87,7 @@ func (s IDSet) IDs() []data.ID {
 }
 
 type IDIter struct {
-	data.Store
+	data.Access
 	ids   IDSet
 	place int
 	err   error
@@ -95,23 +95,23 @@ type IDIter struct {
 	*sync.Mutex
 }
 
-func NewIDIter(set IDSet, s data.Store) *IDIter {
+func NewIDIter(set IDSet, a data.Access) *IDIter {
 	return &IDIter{
-		place: 0,
-		Store: s,
-		ids:   set,
-		Mutex: new(sync.Mutex),
+		place:  0,
+		Access: a,
+		ids:    set,
+		Mutex:  new(sync.Mutex),
 	}
 }
 
-func (i *IDIter) Next(r data.Record) bool {
+func (i *IDIter) Next(m data.Model) bool {
 	if i.place >= len(i.ids) {
 		return false
 	}
 
-	r.SetID(i.ids[i.place])
+	m.SetID(i.ids[i.place])
 
-	if err := i.Store.PopulateByID(r); err != nil {
+	if err := i.Access.PopulateByID(m); err != nil {
 		i.err = err
 		return false
 	} else {

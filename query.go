@@ -7,7 +7,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-func (db *MongoDB) NewQuery(k data.Kind) data.Query {
+func (db *MongoDB) NewQuery(k data.Kind) data.RecordQuery {
 	return &MongoQuery{
 		db:    db,
 		kind:  k,
@@ -58,14 +58,14 @@ func (q *MongoQuery) Execute() (data.RecordIterator, error) {
 	return newRecordIter(mgoQuery.Iter()), nil
 }
 
-func (q *MongoQuery) Select(am data.AttrMap) data.Query {
+func (q *MongoQuery) Select(am data.AttrMap) data.RecordQuery {
 	q.Lock()
 	defer q.Unlock()
 	q.match = am
 	return q
 }
 
-func (q *MongoQuery) Limit(i int) data.Query {
+func (q *MongoQuery) Limit(i int) data.RecordQuery {
 	q.Lock()
 	defer q.Unlock()
 
@@ -73,7 +73,7 @@ func (q *MongoQuery) Limit(i int) data.Query {
 	return q
 }
 
-func (q *MongoQuery) Skip(i int) data.Query {
+func (q *MongoQuery) Skip(i int) data.RecordQuery {
 	q.Lock()
 	defer q.Unlock()
 
@@ -81,7 +81,7 @@ func (q *MongoQuery) Skip(i int) data.Query {
 	return q
 }
 
-func (q *MongoQuery) Batch(i int) data.Query {
+func (q *MongoQuery) Batch(i int) data.RecordQuery {
 	q.Lock()
 	defer q.Unlock()
 
