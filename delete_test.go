@@ -7,14 +7,8 @@ import (
 )
 
 func TestDelete(t *testing.T) {
-	Runner.ConfigFile = "./test.conf"
-	Runner.Logger = NullLogger
-	go Runner.Start()
-	defer func() {
-		Runner.Stop()
-		Runner.ConfigFile = ""
-		Runner.Logger = DefaultLogger
-	}()
+	testify(Runner)
+	defer detestify(Runner)
 
 	db := NewDB()
 	db.Connect("localhost")
