@@ -57,3 +57,36 @@ func (t *Timestamped) SetUpdatedAt(ua time.Time) {
 func (t *Timestamped) UpdatedAt() time.Time {
 	return t.EUpdatedAt
 }
+
+type Named struct {
+	EName string `json:"name" bson:"name"`
+}
+
+func (n *Named) SetName(name string) {
+	n.EName = name
+}
+
+func (n *Named) Name() string {
+	return n.EName
+}
+
+type Timed struct {
+	EStartTime time.Time `json:"start_time" bson:"start_time"`
+	EEndTime   time.Time `json:"end_time" bson:"end_time"`
+}
+
+func (t *Timed) StartTime() time.Time {
+	return t.EStartTime
+}
+
+func (t *Timed) SetStartTime(st time.Time) {
+	t.EStartTime = st
+}
+
+func (t *Timed) EndTime() time.Time {
+	return t.EEndTime
+}
+
+func (t *Timed) SetEndTime(et time.Time) {
+	t.EEndTime = et
+}
