@@ -8,9 +8,9 @@ install:
     - export PATH=$PATH:$HOME/gopath/bin
 
 services:
-      - mongodb
+    - mongodb
 
-pre-script:
-    sleep 15
+before_script:
+    - sleep 15
 
 script: go test -race
