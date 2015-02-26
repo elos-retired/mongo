@@ -1,1 +1,1 @@
-# mongo [![GoDoc](https://godoc.org/github.com/elos/mongo?status.svg)](https://godoc.org/github.com/elos/mongo)
+# mongo [![GoDoc](https://godoc.org/github.com/elos/mongo?status.svg)](https://godoc.org/github.com/elos/mongo) [![Build Status](https://travis-ci.org/elos/mongo.svg?branch=master)](https://travis-ci.org/elos/mongo)
