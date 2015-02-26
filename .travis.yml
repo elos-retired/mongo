@@ -10,4 +10,7 @@ install:
 services:
       - mongodb
 
+pre-script:
+    sleep 15
+
 script: go test -race
