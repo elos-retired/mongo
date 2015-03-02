@@ -21,7 +21,7 @@ func (db *MongoDB) Save(m data.Record) error {
 		db.Printf("Error saving record of kind %s, err: %s", m.Kind(), err.Error())
 		return err
 	} else {
-		db.notify(data.NewChange(data.Update, m))
+		db.Notify(data.NewUpdate(m))
 		return nil
 	}
 }

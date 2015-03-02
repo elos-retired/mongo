@@ -21,7 +21,7 @@ func (db *MongoDB) Delete(m data.Record) error {
 		db.Printf("Error deleted record of kind %s, err: %s", m.Kind(), err)
 		return err
 	} else {
-		db.notify(data.NewChange(data.Delete, m))
+		db.Notify(data.NewDelete(m))
 		return nil
 	}
 }

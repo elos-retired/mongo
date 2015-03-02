@@ -45,7 +45,7 @@ func (r *runner) SetConfigFile(s string) {
 	r.ConfigFile = s
 }
 
-func (r *runner) Start() error {
+func (r *runner) Start() {
 	// Lock the runner
 	r.Lock()
 	defer r.Unlock()
@@ -61,7 +61,7 @@ func (r *runner) Start() error {
 
 	if err := r.mongod.Start(); err != nil {
 		r.Print(err)
-		return err
+		return
 	}
 
 	r.Life.Begin()
@@ -71,12 +71,11 @@ func (r *runner) Start() error {
 
 	if err := r.mongod.Process.Signal(os.Interrupt); err != nil {
 		r.Print(err)
-		return err
+		return
 	}
 
 	r.Life.End()
 	r.Print("Mongo succesfully stopped")
-	return nil
 }
 
 func testify(r *runner) {

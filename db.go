@@ -25,17 +25,17 @@ var NullLogger = log.New(ioutil.Discard, "", log.Lshortfile)
 
 type MongoDB struct {
 	collections CollectionMap
-	subscribers map[data.ID][]*chan *data.Change
 	*log.Logger
 	connection *MongoConnection
 	Name       DBName
 	*sync.Mutex
+	*data.ChangeHub
 }
 
 func NewDB() (db *MongoDB) {
 	db = &MongoDB{}
+	db.ChangeHub = data.NewChangeHub()
 	db.collections = make(CollectionMap)
-	db.subscribers = make(map[data.ID][]*chan *data.Change)
 	db.Logger = DefaultLogger
 	db.Name = DefaultName
 	db.Mutex = new(sync.Mutex)
