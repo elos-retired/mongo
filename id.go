@@ -7,7 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func EmptyID() data.ID {
+func EmptyID() bson.ObjectId {
 	return *new(bson.ObjectId)
 }
 
