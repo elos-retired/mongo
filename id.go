@@ -7,6 +7,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+func EmptyID() data.ID {
+	return *new(bson.ObjectId)
+}
+
 func (db *MongoDB) NewID() data.ID {
 	return NewObjectID()
 }
