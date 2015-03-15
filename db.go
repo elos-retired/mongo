@@ -63,7 +63,7 @@ func (db *MongoDB) database(s *mgo.Session) *mgo.Database {
 func (db *MongoDB) collectionForKind(s *mgo.Session, k data.Kind) (*mgo.Collection, error) {
 	c, ok := db.collections[k]
 	if !ok {
-		return nil, data.ErrUndefinedKind
+		return nil, data.NewUndefinedKindError(k)
 	}
 	return db.database(s).C(c), nil
 }
