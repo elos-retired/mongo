@@ -7,7 +7,13 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func EmptyID() bson.ObjectId {
+var emptyID = *new(bson.ObjectId)
+
+func EmptyID(id bson.ObjectId) bool {
+	return id.String() == emptyID.String()
+}
+
+func NewEmptyID() bson.ObjectId {
 	return *new(bson.ObjectId)
 }
 
