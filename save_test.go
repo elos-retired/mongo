@@ -27,7 +27,7 @@ func TestSave(t *testing.T) {
 
 	model.SetDBType(DBType)
 
-	if err := db.Save(model); err != data.ErrUndefinedKind {
+	if _, ok := db.Save(model).(data.UndefinedKindError); !ok {
 		t.Errorf("Mongo should recognize bad kind")
 	}
 

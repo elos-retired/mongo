@@ -25,7 +25,7 @@ func TestDelete(t *testing.T) {
 
 	model.SetDBType(DBType)
 
-	if err := db.Delete(model); err != data.ErrUndefinedKind {
+	if _, ok := db.Delete(model).(data.UndefinedKindError); !ok {
 		t.Errorf("Delete should recognize bad kind")
 	}
 
