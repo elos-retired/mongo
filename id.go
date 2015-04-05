@@ -1,6 +1,8 @@
 package mongo
 
 import (
+	"errors"
+	"strings"
 	"sync"
 
 	"github.com/elos/data"
@@ -19,6 +21,28 @@ func NewEmptyID() bson.ObjectId {
 
 func (db *MongoDB) NewID() data.ID {
 	return NewObjectID()
+}
+
+func ParseObjectID(idS string) (id bson.ObjectId, err error) {
+	defer func() { // cause the bson pkg isn't idiomatic
+		if r := recover(); r != nil {
+			id = emptyID
+			err = errors.New("Could not parse id")
+		}
+	}()
+
+	if strings.Contains(idS, "ObjectIdHex(") {
+		ss := strings.Split(idS, "\"")
+		idS = ss[1]
+	}
+
+	id = bson.ObjectIdHex(idS) // can panic
+
+	return id, nil
+}
+
+func (db *MongoDB) ParseID(idS string) (id data.ID, err error) {
+	return ParseObjectID(idS)
 }
 
 func (db *MongoDB) CheckID(id data.ID) error {

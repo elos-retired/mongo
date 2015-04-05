@@ -3,6 +3,8 @@ package mongo
 import (
 	"math/rand"
 	"testing"
+
+	"github.com/elos/testing/expect"
 )
 
 func TestNewObjectID(t *testing.T) {
@@ -11,6 +13,15 @@ func TestNewObjectID(t *testing.T) {
 	if !id.Valid() {
 		t.Errorf("NewObjectID should return a valid id")
 	}
+}
+
+func TestParseID(t *testing.T) {
+	id := NewObjectID()
+
+	s := id.String()
+
+	id, err := ParseObjectID(s)
+	expect.NoError("parsing object id", err, t)
 }
 
 func TestIDSet(t *testing.T) {
