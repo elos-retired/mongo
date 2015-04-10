@@ -121,7 +121,7 @@ func (s IDSet) IDs() []data.ID {
 }
 
 type IDIter struct {
-	data.Access
+	data.Store
 	ids   IDSet
 	place int
 	err   error
@@ -129,12 +129,12 @@ type IDIter struct {
 	*sync.Mutex
 }
 
-func NewIDIter(set IDSet, a data.Access) *IDIter {
+func NewIDIter(set IDSet, s data.Store) *IDIter {
 	return &IDIter{
-		place:  0,
-		Access: a,
-		ids:    set,
-		Mutex:  new(sync.Mutex),
+		place: 0,
+		Store: s,
+		ids:   set,
+		Mutex: new(sync.Mutex),
 	}
 }
 
@@ -145,7 +145,7 @@ func (i *IDIter) Next(m data.Model) bool {
 
 	m.SetID(i.ids[i.place])
 
-	if err := i.Access.PopulateByID(m); err != nil {
+	if err := i.Store.PopulateByID(m); err != nil {
 		i.err = err
 		return false
 	} else {

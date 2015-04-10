@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/elos/data"
+	"github.com/elos/testing/expect"
 )
 
 func TestPopulate(t *testing.T) {
@@ -22,9 +23,8 @@ func TestPopulate(t *testing.T) {
 	id := db.NewID()
 	model.SetID(id)
 
-	if err := db.Save(model); err != nil {
-		t.Errorf("Failed to save model")
-	}
+	err := db.Save(model)
+	expect.NoError("saving model", err, t)
 
 	model = data.NewNullModel()
 
